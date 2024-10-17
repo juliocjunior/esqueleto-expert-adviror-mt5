@@ -197,13 +197,13 @@ void OnTick() {
       ///  V E R I F I C A Ç Ã O   D O   S E T U P  /// --------------------------------------------------------------------------------------------------------------------
       ///-------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
       if (Setup_Envelope1 == fecha_dentro_fecha_fora) {
-         if(rates[2].close < Upline_Envelope1[2] && rates[1].close > Upline_Envelope1[1]) {
+         if(rates[2].close < Upline_Envelope1[1] && rates[1].close > Upline_Envelope1[0]) {
             Setup_De_Compra = true;
          } else {
             Setup_De_Compra = false;
          }
          
-         if(rates[2].close > Downline_Envelope1[2] && rates[1].close < Downline_Envelope1[1]) {
+         if(rates[2].close > Downline_Envelope1[1] && rates[1].close < Downline_Envelope1[0]) {
             Setup_De_Venda = true;
          } else {
             Setup_De_Venda = false;;
@@ -211,13 +211,13 @@ void OnTick() {
       }
       
       if (Setup_Envelope1 == fecha_fora_fecha_dentro) {
-         if(rates[2].close > Upline_Envelope1[2] && rates[1].close < Upline_Envelope1[1]) {
+         if(rates[2].close > Upline_Envelope1[1] && rates[1].close < Upline_Envelope1[0]) {
             Setup_De_Compra = true;
          } else {
             Setup_De_Compra = false;
          }
          
-         if(rates[2].close < Downline_Envelope1[2] && rates[1].close > Downline_Envelope1[1]) {
+         if(rates[2].close < Downline_Envelope1[1] && rates[1].close > Downline_Envelope1[0]) {
             Setup_De_Venda = true;
          } else {
             Setup_De_Venda = false;;
