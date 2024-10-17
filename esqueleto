@@ -30,6 +30,7 @@ input int Linha_Filtro_ADX1 = 25;
 input int Periodo_Filtro_ADX1 = 15;
 
 input group ""
+input int mintrades = 500;
 input int Magic = 1;
 
 // VARIÁVEIS
@@ -302,7 +303,7 @@ double OnTester() {
       return 0;
    }
 // Verifica o número de trades
-   if(TesterStatistics(STAT_TRADES) <= 500) {
+   if(TesterStatistics(STAT_TRADES) <= mintrades) {
       return 0;
    }
    double resultado = MathPow(m_stat.LRCorrelation(), 10)*m_stat.ProfitFactor();
