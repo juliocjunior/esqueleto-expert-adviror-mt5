@@ -345,10 +345,14 @@ double OnTester() {
       return 0;
    }
 // Verifica o número de trades
-   if(TesterStatistics(STAT_TRADES) <= mintrades) {
-      return 0;
+   double resultado = MathPow(m_stat.LRCorrelation(), 15)*m_stat.ProfitFactor();
+   
+   if (m_stat.Trades() < mintrades) {
+      resultado = resultado*m_stat.Trades();
+   } else {
+      resultado = resultado*mintrades;
    }
-   double resultado = MathPow(m_stat.LRCorrelation(), 10)*m_stat.ProfitFactor();
+   
    if(m_stat.Profit() > 0) {
       if(resultado > 0) {
          return resultado;
@@ -363,3 +367,4 @@ double OnTester() {
       }
    }
 }
+
