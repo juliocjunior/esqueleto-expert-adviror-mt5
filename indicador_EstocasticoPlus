@@ -1,45 +1,44 @@
 #property copyright "2009, MetaQuotes Software Corp."
-#property link "http://www.mql5.com"
+#property link      "http://www.mql5.com"
 //--- indicator settings
 #property indicator_separate_window
-#property indicator_buffers 2
+#property indicator_buffers 4
 #property indicator_plots 2
 #property indicator_type2 DRAW_LINE
 #property indicator_color2 Black
 //--- input parameters
-input int InpFastPeriod = 5;      // Periodo Media 1 (rápido)
-input int InpMiddlePeriod = 10;   // Periodo Media 2 (médio)
-input int InpSlowPeriod = 20;     // Periodo Media 3 (lento)
-input int InpFastK = 3;           // Peso Media 1 (rápido)
-input int InpMiddleK = 2;         // Peso Media 2 (médio)
-input int InpSlowK = 1;           // Peso Media 3 (lento)
-input int InpSlowing = 3;         // Suavização da linha de sinal (média móvel simples)
+input int InpFastPeriod=5;     // Período Média 1 (FastK)
+input int InpMiddlePeriod=10;  // Período Média 2 (MiddleK)
+input int InpSlowPeriod=20;    // Período Média 3 (SlowK)
+input int InpFastK=3;          // Peso Média 1
+input int InpMiddleK=2;        // Peso Média 2
+input int InpSlowK=1;          // Peso Média 3
+input int InpSlowing=3;        // Suavização (Slowing)
 //--- indicator buffers
 double ExtMainBuffer[];
 double ExtSignalBuffer[];
+double ExtHighesBuffer[];
+double ExtLowesBuffer[];
 
-//--- Adicionando os buffers da linha Signal e da linha principal
-
-void OnInit() 
+void OnInit()
 {
     //--- indicator buffers mapping
-    if (!SetIndexBuffer(0, ExtMainBuffer, INDICATOR_DATA) || 
-        !SetIndexBuffer(1, ExtSignalBuffer, INDICATOR_DATA)) {
-        Print("Erro ao configurar os buffers");
-        return;
-    }
-    
+    SetIndexBuffer(0, ExtMainBuffer, INDICATOR_CALCULATIONS);
+    SetIndexBuffer(1, ExtSignalBuffer, INDICATOR_DATA);
+    SetIndexBuffer(2, ExtHighesBuffer, INDICATOR_CALCULATIONS);
+    SetIndexBuffer(3, ExtLowesBuffer, INDICATOR_CALCULATIONS);
+
     //--- set accuracy
     IndicatorSetInteger(INDICATOR_DIGITS, 2);
-    
+
     //--- set maximum and minimum for subwindow
     IndicatorSetDouble(INDICATOR_MINIMUM, 0);
     IndicatorSetDouble(INDICATOR_MAXIMUM, 100);
-    
+
     //--- name for DataWindow and indicator subwindow label
     PlotIndexSetString(0, PLOT_LABEL, "Main");
     PlotIndexSetString(1, PLOT_LABEL, "Signal");
-    
+
     //--- sets first bar from what index will be drawn
     PlotIndexSetInteger(1, PLOT_DRAW_BEGIN, InpFastPeriod + InpMiddlePeriod + InpSlowPeriod + InpSlowing);
 }
@@ -47,76 +46,70 @@ void OnInit()
 int OnCalculate(const int rates_total, const int prev_calculated,
                 const datetime &Time[], const double &Open[], const double &High[],
                 const double &Low[], const double &Close[],
-                const long &TickVolume[], const long &Volume[], const int &Spread[]) 
+                const long &TickVolume[], const long &Volume[], const int &Spread[])
 {
     int i, start;
     double FastK, MiddleK, SlowK;
 
-    // Verifica se há barras suficientes
-    int min_bars = MathMax(InpFastPeriod, MathMax(InpMiddlePeriod, InpSlowPeriod)) + InpSlowing;
-    if (rates_total <= min_bars) {
+    // Verificação se há barras suficientes
+    if (rates_total <= InpFastPeriod + InpMiddlePeriod + InpSlowPeriod + InpSlowing)
         return 0;
-    }
 
     // Define o início para o cálculo com base no maior período
     start = InpSlowPeriod;
 
-    // Recalcula apenas as barras não processadas anteriormente
-    int calculatedBars = prev_calculated > 0 ? prev_calculated : start;
-    
     // Loop para calcular as médias rápidas, médias e lentas
-    for (i = calculatedBars; i < rates_total; i++) {
+    for (i = start; i < rates_total && !IsStopped(); i++) {
         double dminFast = DBL_MAX, dmaxFast = -DBL_MAX;
         double dminMiddle = DBL_MAX, dmaxMiddle = -DBL_MAX;
         double dminSlow = DBL_MAX, dmaxSlow = -DBL_MAX;
 
-        // Atualiza os valores mínimos e máximos para FastK, MiddleK e SlowK
+        // Calcula o mínimo e máximo para o FastK
         for (int k = i - InpFastPeriod + 1; k <= i; k++) {
-            dminFast = MathMin(dminFast, Low[k]);
-            dmaxFast = MathMax(dmaxFast, High[k]);
+            if (k < 0) continue;
+            if (dminFast > Low[k]) dminFast = Low[k];
+            if (dmaxFast < High[k]) dmaxFast = High[k];
         }
 
+        // Calcula o mínimo e máximo para o MiddleK
         for (int k = i - InpMiddlePeriod + 1; k <= i; k++) {
-            dminMiddle = MathMin(dminMiddle, Low[k]);
-            dmaxMiddle = MathMax(dmaxMiddle, High[k]);
+            if (k < 0) continue;
+            if (dminMiddle > Low[k]) dminMiddle = Low[k];
+            if (dmaxMiddle < High[k]) dmaxMiddle = High[k];
         }
 
+        // Calcula o mínimo e máximo para o SlowK
         for (int k = i - InpSlowPeriod + 1; k <= i; k++) {
-            dminSlow = MathMin(dminSlow, Low[k]);
-            dmaxSlow = MathMax(dmaxSlow, High[k]);
+            if (k < 0) continue;
+            if (dminSlow > Low[k]) dminSlow = Low[k];
+            if (dmaxSlow < High[k]) dmaxSlow = High[k];
         }
 
-        // Calcula o valor de cada média (FastK, MiddleK e SlowK) com verificação de divisão por zero
+        // Calcula o valor de cada média (FastK, MiddleK e SlowK)
         FastK = (dmaxFast - dminFast > 0) ? (Close[i] - dminFast) / (dmaxFast - dminFast) * 100 : 50;
         MiddleK = (dmaxMiddle - dminMiddle > 0) ? (Close[i] - dminMiddle) / (dmaxMiddle - dminMiddle) * 100 : 50;
         SlowK = (dmaxSlow - dminSlow > 0) ? (Close[i] - dminSlow) / (dmaxSlow - dminSlow) * 100 : 50;
 
         // Calcula o valor da linha principal (ExtMainBuffer)
-        int totalK = InpFastK + InpMiddleK + InpSlowK;
-        ExtMainBuffer[i] = (InpFastK * FastK + InpMiddleK * MiddleK + InpSlowK * SlowK) / (totalK > 0 ? totalK : 1);
+        ExtMainBuffer[i] = (InpFastK * FastK + InpMiddleK * MiddleK + InpSlowK * SlowK) /
+                           (InpFastK + InpMiddleK + InpSlowK);
     }
 
     // Cálculo da linha de sinal (D%)
-    if (InpSlowing == 1) {
-        // Se o valor de suavização for 1, a linha de sinal é igual à linha principal
-        CopyBuffer(ExtMainBuffer, ExtSignalBuffer, rates_total);
-    } else {
-        // Caso contrário, calcula a média móvel simples
-        for (i = calculatedBars; i < rates_total; i++) {
-            double sum = 0.0;
-            for (int j = 0; j < InpSlowing; j++) {
-                sum += ExtMainBuffer[i - j];
-            }
-            ExtSignalBuffer[i] = sum / InpSlowing;
+    for (i = start; i < rates_total; i++) {
+        double sum = 0.0;
+
+        // Calcula a média móvel simples dos últimos 'InpSlowing' valores da linha principal
+        int count = 0;
+        for (int j = 0; j < InpSlowing; j++) {
+            if (i - j < 0) continue;
+            sum += ExtMainBuffer[i - j];
+            count++;
         }
+
+        // Atribui o valor da média à linha de sinal
+        ExtSignalBuffer[i] = count > 0 ? sum / count : ExtMainBuffer[i];
     }
 
     return rates_total;
-}
-
-// Função para copiar um buffer para outro
-void CopyBuffer(const double &src[], double &dst[], int size) {
-    for (int i = 0; i < size; i++) {
-        dst[i] = src[i];
-    }
 }
