@@ -1,5 +1,3 @@
-#property copyright "2009, MetaQuotes Software Corp."
-#property link      "http://www.mql5.com"
 //--- indicator settings
 #property indicator_separate_window
 #property indicator_buffers 4
@@ -7,13 +5,13 @@
 #property indicator_type2 DRAW_LINE
 #property indicator_color2 Black
 //--- input parameters
-input int InpFastPeriod=5;     // Período Média 1 (FastK)
-input int InpMiddlePeriod=10;  // Período Média 2 (MiddleK)
-input int InpSlowPeriod=20;    // Período Média 3 (SlowK)
-input int InpFastK=3;          // Peso Média 1
-input int InpMiddleK=2;        // Peso Média 2
-input int InpSlowK=1;          // Peso Média 3
-input int InpSlowing=3;        // Suavização (Slowing)
+input int InpFastPeriod=5; // Período Média 1 (FastK)
+input int InpMiddlePeriod=10; // Período Média 2 (MiddleK)
+input int InpSlowPeriod=20; // Período Média 3 (SlowK)
+input int InpFastK=3; // Peso Média 1
+input int InpMiddleK=2; // Peso Média 2
+input int InpSlowK=1; // Peso Média 3
+input int InpSlowing=3; // Suavização (Slowing)
 //--- indicator buffers
 double ExtMainBuffer[];
 double ExtSignalBuffer[];
@@ -22,25 +20,25 @@ double ExtLowesBuffer[];
 
 void OnInit()
 {
-    //--- indicator buffers mapping
-    SetIndexBuffer(0, ExtMainBuffer, INDICATOR_CALCULATIONS);
-    SetIndexBuffer(1, ExtSignalBuffer, INDICATOR_DATA);
-    SetIndexBuffer(2, ExtHighesBuffer, INDICATOR_CALCULATIONS);
-    SetIndexBuffer(3, ExtLowesBuffer, INDICATOR_CALCULATIONS);
+//--- indicator buffers mapping
+SetIndexBuffer(0, ExtMainBuffer, INDICATOR_CALCULATIONS);
+SetIndexBuffer(1, ExtSignalBuffer, INDICATOR_DATA);
+SetIndexBuffer(2, ExtHighesBuffer, INDICATOR_CALCULATIONS);
+SetIndexBuffer(3, ExtLowesBuffer, INDICATOR_CALCULATIONS);
 
-    //--- set accuracy
-    IndicatorSetInteger(INDICATOR_DIGITS, 2);
+//--- set accuracy
+IndicatorSetInteger(INDICATOR_DIGITS, 2);
 
-    //--- set maximum and minimum for subwindow
-    IndicatorSetDouble(INDICATOR_MINIMUM, 0);
-    IndicatorSetDouble(INDICATOR_MAXIMUM, 100);
+//--- set maximum and minimum for subwindow
+IndicatorSetDouble(INDICATOR_MINIMUM, 0);
+IndicatorSetDouble(INDICATOR_MAXIMUM, 100);
 
-    //--- name for DataWindow and indicator subwindow label
-    PlotIndexSetString(0, PLOT_LABEL, "Main");
-    PlotIndexSetString(1, PLOT_LABEL, "Signal");
+//--- name for DataWindow and indicator subwindow label
+PlotIndexSetString(0, PLOT_LABEL, "Main");
+PlotIndexSetString(1, PLOT_LABEL, "Signal");
 
-    //--- sets first bar from what index will be drawn
-    PlotIndexSetInteger(1, PLOT_DRAW_BEGIN, InpFastPeriod + InpMiddlePeriod + InpSlowPeriod + InpSlowing);
+//--- sets first bar from what index will be drawn
+PlotIndexSetInteger(1, PLOT_DRAW_BEGIN, InpFastPeriod + InpMiddlePeriod + InpSlowPeriod + InpSlowing);
 }
 
 int OnCalculate(const int rates_total, const int prev_calculated,
@@ -56,7 +54,7 @@ int OnCalculate(const int rates_total, const int prev_calculated,
         return 0;
 
     // Define o início para o cálculo com base no maior período
-    start = InpSlowPeriod;
+    start = MathMax(prev_calculated, InpSlowPeriod);
 
     // Loop para calcular as médias rápidas, médias e lentas
     for (i = start; i < rates_total && !IsStopped(); i++) {
@@ -64,42 +62,47 @@ int OnCalculate(const int rates_total, const int prev_calculated,
         double dminMiddle = DBL_MAX, dmaxMiddle = -DBL_MAX;
         double dminSlow = DBL_MAX, dmaxSlow = -DBL_MAX;
 
-        // Calcula o mínimo e máximo para o FastK
+        // Cálculo das médias com buffers temporários para minimizar acessos diretos
         for (int k = i - InpFastPeriod + 1; k <= i; k++) {
             if (k < 0) continue;
-            if (dminFast > Low[k]) dminFast = Low[k];
-            if (dmaxFast < High[k]) dmaxFast = High[k];
+            double low_k = Low[k], high_k = High[k];
+            if (dminFast > low_k) dminFast = low_k;
+            if (dmaxFast < high_k) dmaxFast = high_k;
         }
 
-        // Calcula o mínimo e máximo para o MiddleK
         for (int k = i - InpMiddlePeriod + 1; k <= i; k++) {
             if (k < 0) continue;
-            if (dminMiddle > Low[k]) dminMiddle = Low[k];
-            if (dmaxMiddle < High[k]) dmaxMiddle = High[k];
+            double low_k = Low[k], high_k = High[k];
+            if (dminMiddle > low_k) dminMiddle = low_k;
+            if (dmaxMiddle < high_k) dmaxMiddle = high_k;
         }
 
-        // Calcula o mínimo e máximo para o SlowK
         for (int k = i - InpSlowPeriod + 1; k <= i; k++) {
             if (k < 0) continue;
-            if (dminSlow > Low[k]) dminSlow = Low[k];
-            if (dmaxSlow < High[k]) dmaxSlow = High[k];
+            double low_k = Low[k], high_k = High[k];
+            if (dminSlow > low_k) dminSlow = low_k;
+            if (dmaxSlow < high_k) dmaxSlow = high_k;
         }
 
-        // Calcula o valor de cada média (FastK, MiddleK e SlowK)
+        // Cálculo das médias (FastK, MiddleK e SlowK)
         FastK = (dmaxFast - dminFast > 0) ? (Close[i] - dminFast) / (dmaxFast - dminFast) * 100 : 50;
         MiddleK = (dmaxMiddle - dminMiddle > 0) ? (Close[i] - dminMiddle) / (dmaxMiddle - dminMiddle) * 100 : 50;
         SlowK = (dmaxSlow - dminSlow > 0) ? (Close[i] - dminSlow) / (dmaxSlow - dminSlow) * 100 : 50;
 
-        // Calcula o valor da linha principal (ExtMainBuffer)
+        // Cálculo da linha principal (ExtMainBuffer)
         ExtMainBuffer[i] = (InpFastK * FastK + InpMiddleK * MiddleK + InpSlowK * SlowK) /
                            (InpFastK + InpMiddleK + InpSlowK);
     }
 
-    // Cálculo da linha de sinal (D%)
+    // Cálculo incremental da linha de sinal (D%)
+    if (prev_calculated > 0) {
+        start = prev_calculated - 1;
+    }
+
     for (i = start; i < rates_total; i++) {
         double sum = 0.0;
 
-        // Calcula a média móvel simples dos últimos 'InpSlowing' valores da linha principal
+        // Média móvel simples dos últimos 'InpSlowing' valores da linha principal
         int count = 0;
         for (int j = 0; j < InpSlowing; j++) {
             if (i - j < 0) continue;
@@ -107,7 +110,6 @@ int OnCalculate(const int rates_total, const int prev_calculated,
             count++;
         }
 
-        // Atribui o valor da média à linha de sinal
         ExtSignalBuffer[i] = count > 0 ? sum / count : ExtMainBuffer[i];
     }
 
