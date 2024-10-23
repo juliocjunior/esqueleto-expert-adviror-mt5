@@ -1,21 +1,17 @@
-//+------------------------------------------------------------------+
-//|                                                   Stochastic.mq5 |
-//|                        Copyright 2009, MetaQuotes Software Corp. |
-//|                                              http://www.mql5.com |
-//+------------------------------------------------------------------+
-#property copyright "2009, MetaQuotes Software Corp."
-#property link      "http://www.mql5.com"
 //--- indicator settings
 #property indicator_separate_window
 #property indicator_buffers 4
-#property indicator_plots   1
+#property indicator_plots   2
 #property indicator_type1   DRAW_LINE
-#property indicator_color1  Black
+#property indicator_type2   DRAW_LINE
+#property indicator_color1  LightSeaGreen
+#property indicator_color2  Red
+#property indicator_style2  STYLE_DOT
 //--- input parameters
-input int InpFastPeriod=5;     // Periodo Media 1
-input int InpMiddlePeriod=10;  // Periodo Media 2
-input int InpSlowPeriod=20;    // Periodo Media 3
-input int InpFastK=3;          // Peso Media 1
+input int InpFastPeriod=7;     // Periodo Media 1
+input int InpMiddlePeriod=14;  // Periodo Media 2
+input int InpSlowPeriod=28;    // Periodo Media 3
+input int InpFastK=4;          // Peso Media 1
 input int InpMiddleK=2;        // Peso Media 2
 input int InpSlowK=1;          // Peso Media 3
 input int InpSlowing=1;        // Media
@@ -28,6 +24,10 @@ double    ExtLowesBuffer[];
 //+------------------------------------------------------------------+
 void OnInit()
   {
+//--- indicator buffers mapping
+   SetIndexBuffer(0,ExtMainBuffer,INDICATOR_DATA);
+   SetIndexBuffer(1,ExtHighesBuffer,INDICATOR_CALCULATIONS);
+   SetIndexBuffer(2,ExtLowesBuffer,INDICATOR_CALCULATIONS);
 //--- set accuracy
    IndicatorSetInteger(INDICATOR_DIGITS,2);
 //--- set maximum and minimum for subwindow
@@ -48,15 +48,14 @@ int OnCalculate(const int rates_total, const int prev_calculated,
                 const double &Open[], const double &High[],
                 const double &Low[], const double &Close[],
                 const long &TickVolume[], const long &Volume[],
-                const int &Spread[]) {
-    int i, start;
+               const int &Spread[]) {
+   int i, start;
     double FastK, MiddleK, SlowK;
 
     if (rates_total <= InpSlowPeriod)
         return 0;
 
-    start = InpSlowPeriod;
-
+    start = InpSlowPeriod; 
     for (i = start; i < rates_total && !IsStopped(); i++) {
         double dminFast = 1000000.0, dmaxFast = -1000000.0;
         double dminMiddle = 1000000.0, dmaxMiddle = -1000000.0;
@@ -70,7 +69,7 @@ int OnCalculate(const int rates_total, const int prev_calculated,
         for (int k = i - InpMiddlePeriod + 1; k <= i; k++) {
             if (dminMiddle > Low[k]) dminMiddle = Low[k];
             if (dmaxMiddle < High[k]) dmaxMiddle = High[k];
-        }
+      }
 
         for (int k = i - InpSlowPeriod + 1; k <= i; k++) {
             if (dminSlow > Low[k]) dminSlow = Low[k];
@@ -79,11 +78,11 @@ int OnCalculate(const int rates_total, const int prev_calculated,
 
         FastK = (Close[i] - dminFast) / (dmaxFast - dminFast) * 100;
         MiddleK = (Close[i] - dminMiddle) / (dmaxMiddle - dminMiddle) * 100;
-        SlowK = (Close[i] - dminSlow) / (dmaxSlow - dminSlow) * 100;
+       SlowK = (Close[i] - dminSlow) / (dmaxSlow - dminSlow) * 100;
 
         ExtMainBuffer[i] = (InpFastK * FastK + InpMiddleK * MiddleK + InpSlowK * SlowK) /
                            (InpFastK + InpMiddleK + InpSlowK);
     }
 
-    return rates_total;
+   return rates_total;
 }
