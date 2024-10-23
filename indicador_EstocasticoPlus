@@ -8,17 +8,14 @@
 //--- indicator settings
 #property indicator_separate_window
 #property indicator_buffers 4
-#property indicator_plots   2
+#property indicator_plots   1
 #property indicator_type1   DRAW_LINE
-#property indicator_type2   DRAW_LINE
-#property indicator_color1  LightSeaGreen
-#property indicator_color2  Red
-#property indicator_style2  STYLE_DOT
+#property indicator_color1  Black
 //--- input parameters
-input int InpFastPeriod=7;     // Periodo Media 1
-input int InpMiddlePeriod=14;  // Periodo Media 2
-input int InpSlowPeriod=28;    // Periodo Media 3
-input int InpFastK=4;          // Peso Media 1
+input int InpFastPeriod=5;     // Periodo Media 1
+input int InpMiddlePeriod=10;  // Periodo Media 2
+input int InpSlowPeriod=20;    // Periodo Media 3
+input int InpFastK=3;          // Peso Media 1
 input int InpMiddleK=2;        // Peso Media 2
 input int InpSlowK=1;          // Peso Media 3
 input int InpSlowing=1;        // Media
@@ -31,10 +28,6 @@ double    ExtLowesBuffer[];
 //+------------------------------------------------------------------+
 void OnInit()
   {
-//--- indicator buffers mapping
-   SetIndexBuffer(0,ExtMainBuffer,INDICATOR_DATA);
-   SetIndexBuffer(1,ExtHighesBuffer,INDICATOR_CALCULATIONS);
-   SetIndexBuffer(2,ExtLowesBuffer,INDICATOR_CALCULATIONS);
 //--- set accuracy
    IndicatorSetInteger(INDICATOR_DIGITS,2);
 //--- set maximum and minimum for subwindow
