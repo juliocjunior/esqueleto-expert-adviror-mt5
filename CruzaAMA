@@ -39,6 +39,7 @@ input int fast_periodo_AMA2 = 20;
 input int slow_periodo_AMA2 = 20;
 
 input group ""
+input int mintrades = 500;
 input int Magic = 1;
 
 // VARIÁVEIS
