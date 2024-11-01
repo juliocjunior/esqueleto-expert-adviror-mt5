@@ -454,11 +454,11 @@ double OnTester() {
     return 0;
   }
 // Verifica o número de trades
-  double resultado = m_stat.Profit();
+  double resultado = m_stat.Profit()*m_stat.ProfitFactor();
   if(m_stat.Trades() < mintrades && m_stat.Trades() > 100) {
-    resultado = m_stat.Trades() * m_stat.Profit();
+    resultado = m_stat.Trades()*m_stat.Profit()*m_stat.ProfitFactor();
   } else if(m_stat.Trades() > mintrades) {
-    resultado = mintrades * m_stat.Profit();
+    resultado = mintrades*m_stat.Profit()* m_stat.ProfitFactor();
   }
   resultado = MathPow(m_stat.LRCorrelation(), 15) * resultado;
   if(m_stat.Profit() > 0) {
