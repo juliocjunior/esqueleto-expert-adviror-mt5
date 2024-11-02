@@ -459,15 +459,15 @@ double OnTester() {
   resultado = MathPow(m_stat.LRCorrelation(), 15) * resultado;
   if(m_stat.Profit() > 0) {
     if(resultado > 0) {
-      return resultado;
+      return (resultado)/100000;
     } else {
-      return resultado * -1;
+      return (resultado*-1)/100000;
     }
   } else {
     if(resultado < 0) {
-      return resultado;
+      return (resultado)/100000;
     } else {
-      return resultado * -1;
+      return (resultado* -1)/100000;
     }
   }
 }
