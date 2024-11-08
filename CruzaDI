@@ -174,7 +174,7 @@ int Coldown = 0;
 double Lotes = 1;
  
 int Linha_De_Compra_Filtro_Estocastico1 = Espacamento_Filtro_Estocastico1;
-int Linha_De_Venda_Filtro_Estocastico1 = 100+Espacamento_Filtro_Estocastico1*(-1);
+int Linha_De_Venda_Filtro_Estocastico1 = 100-Espacamento_Filtro_Estocastico1;
 int Acima_Da_Linha_Compra_Filtro_Estocastico1 = 0;
 int Abaixo_Da_Linha_Venda_Filtro_Estocastico1 = 0;
 
