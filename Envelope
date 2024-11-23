@@ -8,42 +8,167 @@
 CTrade trade;
 CTradeStatistics m_stat;
 
+enum OptionsEnum {
+// Incremento de 1 de 1 a 30
+  Option1 = 1,   // 1
+  Option2 = 2,   // 2
+  Option3 = 3,   // 3
+  Option4 = 4,   // 4
+  Option5 = 5,   // 5
+  Option6 = 6,   // 6
+  Option7 = 7,   // 7
+  Option8 = 8,   // 8
+  Option9 = 9,   // 9
+  Option10 = 10, // 10
+  Option11 = 11, // 11
+  Option12 = 12, // 12
+  Option13 = 13, // 13
+  Option14 = 14, // 14
+  Option15 = 15, // 15
+  Option16 = 16, // 16
+  Option17 = 17, // 17
+  Option18 = 18, // 18
+  Option19 = 19, // 19
+  Option20 = 20, // 20
+  Option21 = 21, // 21
+  Option22 = 22, // 22
+  Option23 = 23, // 23
+  Option24 = 24, // 24
+  Option25 = 25, // 25
+  Option26 = 26, // 26
+  Option27 = 27, // 27
+  Option28 = 28, // 28
+  Option29 = 29, // 29
+  Option30 = 30, // 30
+
+// Incremento de 2 de 30 a 100
+  Option31 = 32,  // 32
+  Option32 = 34,  // 34
+  Option33 = 36,  // 36
+  Option34 = 38,  // 38
+  Option35 = 40,  // 40
+  Option36 = 42,  // 42
+  Option37 = 44,  // 44
+  Option38 = 46,  // 46
+  Option39 = 48,  // 48
+  Option40 = 50,  // 50
+  Option41 = 52,  // 52
+  Option42 = 54,  // 54
+  Option43 = 56,  // 56
+  Option44 = 58,  // 58
+  Option45 = 60,  // 60
+  Option46 = 62,  // 62
+  Option47 = 64,  // 64
+  Option48 = 66,  // 66
+  Option49 = 68,  // 68
+  Option50 = 70,  // 70
+  Option51 = 72,  // 72
+  Option52 = 74,  // 74
+  Option53 = 76,  // 76
+  Option54 = 78,  // 78
+  Option55 = 80,  // 80
+  Option56 = 82,  // 82
+  Option57 = 84,  // 84
+  Option58 = 86,  // 86
+  Option59 = 88,  // 88
+  Option60 = 90,  // 90
+  Option61 = 92,  // 92
+  Option62 = 94,  // 94
+  Option63 = 96,  // 96
+  Option64 = 98,  // 98
+  Option65 = 100, // 100
+
+// Incremento de 10 de 100 a 300
+  Option66 = 110, // 110
+  Option67 = 120, // 120
+  Option68 = 130, // 130
+  Option69 = 140, // 140
+  Option70 = 150, // 150
+  Option71 = 160, // 160
+  Option72 = 170, // 170
+  Option73 = 180, // 180
+  Option74 = 190, // 190
+  Option75 = 200, // 200
+  Option76 = 210, // 210
+  Option77 = 220, // 220
+  Option78 = 230, // 230
+  Option79 = 240, // 240
+  Option80 = 250, // 250
+  Option81 = 260, // 260
+  Option82 = 270, // 270
+  Option83 = 280, // 280
+  Option84 = 290, // 290
+  Option85 = 300, // 300
+
+// Incremento de 20 de 300 a 1000
+  Option86 = 320,  // 320
+  Option87 = 340,  // 340
+  Option88 = 360,  // 360
+  Option89 = 380,  // 380
+  Option90 = 400,  // 400
+  Option91 = 420,  // 420
+  Option92 = 440,  // 440
+  Option93 = 460,  // 460
+  Option94 = 480,  // 480
+  Option95 = 500,  // 500
+  Option96 = 520,  // 520
+  Option97 = 540,  // 540
+  Option98 = 560,  // 560
+  Option99 = 580,  // 580
+  Option100 = 600, // 600
+  Option101 = 620, // 620
+  Option102 = 640, // 640
+  Option103 = 660, // 660
+  Option104 = 680, // 680
+  Option105 = 700, // 700
+  Option106 = 720, // 720
+  Option107 = 740, // 740
+  Option108 = 760, // 760
+  Option109 = 780, // 780
+  Option110 = 800, // 800
+  Option111 = 820, // 820
+  Option112 = 840, // 840
+  Option113 = 860, // 860
+  Option114 = 880, // 880
+  Option115 = 900, // 900
+  Option116 = 920, // 920
+  Option117 = 940, // 940
+  Option118 = 960, // 960
+  Option119 = 980, // 980
+  Option120 = 1000 // 1000
+};
+
 enum OptionType
 {
-   fecha_dentro_fecha_fora,   // Fecha Dentro Fecha Fora
-   fecha_fora_fecha_dentro    // Fecha Fora Fecha Dentro
+   fecha_dentro_fecha_fora,   //  Dentro Fora
+   fecha_fora_fecha_dentro    //  Fora Dentro
 };
 
 // INPUTS
 //-------
-
-
 input group "Inverter"
 input bool Inverter_Filtro_Estocastico1 = false;
 input bool Inverter_Filtro_ADX1 = false;
 input bool Inverter_Estrategia = false;
 
-input group ""
-input int Candles_Por_Operacao = 1;
-
 input group "Filtro Estocastico"
 input int Espacamento_Filtro_Estocastico1 = 10;
-input int Periodo_Filtro_Estocastico1 = 14;
-input int Media_Filtro_Estocastico1 = 14;
+input OptionsEnum Periodo_Filtro_Estocastico1 = Option1;
+input OptionsEnum Media_Filtro_Estocastico1 = Option1;
 
 input group "Filtro Filtro_ADX1"
 input int Linha_Filtro_ADX1 = 25;
-input int Periodo_Filtro_ADX1 = 15;
+input OptionsEnum Periodo_Filtro_ADX1 = Option1;
 
 input group "Envelope1"
-input int Periodo_Envelope = 20;
+input OptionsEnum Periodo_Envelope = Option1;
 input double Desvio_Envelope1 = 0.1;
-input ENUM_MA_METHOD Tipo_Media_Envelope1 = MODE_SMA;
 input OptionType Setup_Envelope1 = fecha_dentro_fecha_fora;
 
-input group ""
-input int mintrades = 500;
-input int Magic = 1;
+
+int mintrades = 250;
+int Magic = 1;
+
 
 // VARIÁVEIS
 int hAbertura = 3;
@@ -52,9 +177,10 @@ int hFechamento = 22;
 int mFechamento = 0;
 int Coldown = 0;
 double Lotes = 1;
+int Candles_Por_Operacao = 1;
  
 int Linha_De_Compra_Filtro_Estocastico1 = Espacamento_Filtro_Estocastico1;
-int Linha_De_Venda_Filtro_Estocastico1 = 100+Espacamento_Filtro_Estocastico1*(-1);
+int Linha_De_Venda_Filtro_Estocastico1 = 100-Espacamento_Filtro_Estocastico1;
 int Acima_Da_Linha_Compra_Filtro_Estocastico1 = 0;
 int Abaixo_Da_Linha_Venda_Filtro_Estocastico1 = 0;
 
@@ -66,6 +192,7 @@ bool Setup_De_Venda = false;
 int Pause = 0;
 int Posicoes_Abertas = 0;
 int Tempo_Posicao_Aberta = 0;
+ENUM_MA_METHOD Tipo_Media_Envelope1 = MODE_SMA;
 
 // HANDLES
 //--------
@@ -334,36 +461,26 @@ long GetTicketByMagicNumber(int magicNumber)
 //|                                                                  |
 //+------------------------------------------------------------------+
 double OnTester() {
-   //int handle = iCustom(_Symbol, PERIOD_CURRENT, "TradeBuddyTesterMT5");
-   //ChartIndicatorAdd(0,0,handle);
+  //int handle = iCustom(_Symbol, PERIOD_CURRENT, "TradeBuddyTesterMT5");
+  //ChartIndicatorAdd(0,0,handle);
 
 // Verifica se o cálculo das estatísticas foi realizado com sucesso
    if(!m_stat.Calculate()) {
       return 0;
    }
+   
 // Verifica o número de trades
-   double resultado = 0;
+   double Resultado = 0;
+   double SharpeRadio = MathPow(TesterStatistics(STAT_SHARPE_RATIO), 1);
+   double Trades = MathPow(m_stat.Trades(), 1); 
+   double modmintrades = MathPow(mintrades, 1);
    
-   if (m_stat.Trades() < mintrades && m_stat.Trades() > 100) {
-      resultado = m_stat.Trades()*m_stat.ProfitFactor();
-   } else if (m_stat.Trades() > mintrades){
-      resultado = mintrades*m_stat.ProfitFactor();
+   if (Trades < modmintrades && Trades > 50) {
+      Resultado = Trades * SharpeRadio;
+      
+   } else if (Trades > modmintrades){
+      Resultado = modmintrades * SharpeRadio;
    }
    
-   resultado = MathPow(m_stat.LRCorrelation(), 15)*resultado;
-
-   
-   if(m_stat.Profit() > 0) {
-      if(resultado > 0) {
-         return resultado;
-      } else {
-         return resultado * -1;
-      }
-   } else {
-      if(resultado < 0) {
-         return resultado;
-      } else {
-         return resultado * -1;
-      }
-   }
-}
+   return Resultado;
+} 
