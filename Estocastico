@@ -138,15 +138,66 @@ enum OptionsEnum {
   Option120 = 1000 // 1000
 };
 
+enum OptionsEnum2 {
+  iOption1 = 1,   // 1
+  iOption2 = 2,   // 2
+  iOption3 = 3,   // 3
+  iOption4 = 4,   // 4
+  iOption5 = 5,   // 5
+  iOption6 = 6,   // 6
+  iOption7 = 7,   // 7
+  iOption8 = 8,   // 8
+  iOption9 = 9,   // 9
+  iOption10 = 10, // 10
+  iOption11 = 11, // 11
+  iOption12 = 12, // 12
+  iOption13 = 13, // 13
+  iOption14 = 14, // 14
+  iOption15 = 15, // 15
+  iOption16 = 16, // 16
+  iOption17 = 17, // 17
+  iOption18 = 18, // 18
+  iOption19 = 19, // 19
+  iOption20 = 20, // 20
+  iOption21 = 21, // 21
+  iOption22 = 22, // 22
+  iOption23 = 23, // 23
+  iOption24 = 24, // 24
+  iOption25 = 25, // 25
+  iOption26 = 26, // 26
+  iOption27 = 27, // 27
+  iOption28 = 28, // 28
+  iOption29 = 29, // 29
+  iOption30 = 30, // 30
+  iOption31 = 31, // 31
+  iOption32 = 32, // 32
+  iOption33 = 33, // 33
+  iOption34 = 34, // 34
+  iOption35 = 35, // 35
+  iOption36 = 36, // 36
+  iOption37 = 37, // 37
+  iOption38 = 38, // 38
+  iOption39 = 39, // 39
+  iOption40 = 40, // 40
+  iOption41 = 41, // 41
+  iOption42 = 42, // 42
+  iOption43 = 43, // 43
+  iOption44 = 44, // 44
+  iOption45 = 45, // 45
+  iOption46 = 46, // 46
+  iOption47 = 47, // 47
+  iOption48 = 48, // 48
+  iOption49 = 49, // 49
+  iOption50 = 50  // 50
+};
+
 // INPUTS
 //-------
+
 input group "Inverter"
 input bool Inverter_Filtro_EstocasticoFiltro1 = false;
 input bool Inverter_Filtro_ADX = false;
 input bool Inverter_Estrategia = false;
-
-input group ""
-input int Candles_Por_Operacao = 1;
 
 input group "Filtro Estocastico"
 input int Espacamento_EstocasticoFiltro1 = 10;
@@ -160,11 +211,12 @@ input OptionsEnum Periodo_ADX = Option1;
 input group ""
 input OptionsEnum periodoEstocastico1 = Option1;
 input OptionsEnum MediaEstocastico1 = Option1;
-input int espacamento =30;
+input OptionsEnum2 espacamento = iOption1;
 
-input group ""
-input int mintrades = 500;
-input int Magic = 1;
+
+int mintrades = 250;
+int Magic = 1;
+
 
 // VARIÁVEIS
 int hAbertura = 3;
@@ -173,6 +225,7 @@ int hFechamento = 22;
 int mFechamento = 0;
 int Coldown = 0;
 double Lotes = 1;
+int Candles_Por_Operacao = 1;
  
 int Linha_De_Compra_EstocasticoFiltro1 = Espacamento_EstocasticoFiltro1;
 int Linha_De_Venda_EstocasticoFiltro1 = 100-Espacamento_EstocasticoFiltro1;
@@ -221,7 +274,7 @@ int OnInit() {
    //--------
    Handle_EstocasticoFiltro1 = iStochastic(NULL, PERIOD_CURRENT, Periodo_EstocasticoFiltro1, 1, Media_EstocasticoFiltro1, MODE_SMA, STO_CLOSECLOSE);
    Handle_ADX = iADX(NULL, PERIOD_CURRENT, Periodo_ADX);
-   Handle_Estocastico1 = iStochastic(NULL, PERIOD_CURRENT,periodoEstocastico1, 1, MediaEstocastico1,MODE_SMA,STO_LOWHIGH);
+   Handle_Estocastico1 =       iStochastic(NULL, PERIOD_CURRENT, periodoEstocastico1, 1, MediaEstocastico1, MODE_SMA, STO_CLOSECLOSE);
    return (INIT_SUCCEEDED);
 }
 
@@ -438,36 +491,26 @@ long GetTicketByMagicNumber(int magicNumber)
 //|                                                                  |
 //+------------------------------------------------------------------+
 double OnTester() {
-   //int handle = iCustom(_Symbol, PERIOD_CURRENT, "TradeBuddyTesterMT5");
-   //ChartIndicatorAdd(0,0,handle);
+  //int handle = iCustom(_Symbol, PERIOD_CURRENT, "TradeBuddyTesterMT5");
+  //ChartIndicatorAdd(0,0,handle);
 
 // Verifica se o cálculo das estatísticas foi realizado com sucesso
    if(!m_stat.Calculate()) {
       return 0;
    }
+   
 // Verifica o número de trades
-   double resultado = 0;
+   double Resultado = 0;
+   double SharpeRadio = MathPow(TesterStatistics(STAT_SHARPE_RATIO), 1);
+   double Trades = MathPow(m_stat.Trades(), 1); 
+   double modmintrades = MathPow(mintrades, 1);
    
-   if (m_stat.Trades() < mintrades && m_stat.Trades() > 100) {
-      resultado = m_stat.Trades()*m_stat.ProfitFactor();
-   } else if (m_stat.Trades() > mintrades){
-      resultado = mintrades*m_stat.ProfitFactor();
+   if (Trades < modmintrades && Trades > 50) {
+      Resultado = Trades * SharpeRadio;
+      
+   } else if (Trades > modmintrades){
+      Resultado = modmintrades * SharpeRadio;
    }
    
-   resultado = MathPow(m_stat.LRCorrelation(), 15)*resultado;
-
-   
-   if(m_stat.Profit() > 0) {
-      if(resultado > 0) {
-         return resultado;
-      } else {
-         return resultado * -1;
-      }
-   } else {
-      if(resultado < 0) {
-         return resultado;
-      } else {
-         return resultado * -1;
-      }
-   }
+   return Resultado;
 }
