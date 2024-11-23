@@ -146,9 +146,6 @@ input bool Inverter_Filtro_Estocastico1 = false;
 input bool Inverter_Filtro_ADX1 = false;
 input bool Inverter_Estrategia = false;
 
-input group ""
-input int Candles_Por_Operacao = 1;
-
 input group "Filtro Estocastico"
 input int Espacamento_Filtro_Estocastico1 = 10;
 input OptionsEnum Periodo_Filtro_Estocastico1 = Option1;
@@ -161,9 +158,10 @@ input OptionsEnum Periodo_Filtro_ADX1 = Option1;
 input group "ADX1"
 input OptionsEnum Periodo_ADX1 = Option1;
 
-input group ""
-input int mintrades = 500;
-input int Magic = 1;
+
+int mintrades = 250;
+int Magic = 1;
+
 
 // VARIÁVEIS
 int hAbertura = 3;
@@ -172,9 +170,10 @@ int hFechamento = 22;
 int mFechamento = 0;
 int Coldown = 0;
 double Lotes = 1;
+int Candles_Por_Operacao = 1;
  
 int Linha_De_Compra_Filtro_Estocastico1 = Espacamento_Filtro_Estocastico1;
-int Linha_De_Venda_Filtro_Estocastico1 = 100-Espacamento_Filtro_Estocastico1;
+int Linha_De_Venda_Filtro_Estocastico1 = 100+Espacamento_Filtro_Estocastico1*(-1);
 int Acima_Da_Linha_Compra_Filtro_Estocastico1 = 0;
 int Abaixo_Da_Linha_Venda_Filtro_Estocastico1 = 0;
 
@@ -435,36 +434,26 @@ long GetTicketByMagicNumber(int magicNumber)
 //|                                                                  |
 //+------------------------------------------------------------------+
 double OnTester() {
-   //int handle = iCustom(_Symbol, PERIOD_CURRENT, "TradeBuddyTesterMT5");
-   //ChartIndicatorAdd(0,0,handle);
+  //int handle = iCustom(_Symbol, PERIOD_CURRENT, "TradeBuddyTesterMT5");
+  //ChartIndicatorAdd(0,0,handle);
 
 // Verifica se o cálculo das estatísticas foi realizado com sucesso
    if(!m_stat.Calculate()) {
       return 0;
    }
+   
 // Verifica o número de trades
-   double resultado = 0;
+   double Resultado = 0;
+   double SharpeRadio = MathPow(TesterStatistics(STAT_SHARPE_RATIO), 1);
+   double Trades = MathPow(m_stat.Trades(), 1); 
+   double modmintrades = MathPow(mintrades, 1);
    
-   if (m_stat.Trades() < mintrades && m_stat.Trades() > 100) {
-      resultado = m_stat.Trades()*m_stat.ProfitFactor();
-   } else if (m_stat.Trades() > mintrades){
-      resultado = mintrades*m_stat.ProfitFactor();
+   if (Trades < modmintrades && Trades > 50) {
+      Resultado = Trades * SharpeRadio;
+      
+   } else if (Trades > modmintrades){
+      Resultado = modmintrades * SharpeRadio;
    }
    
-   resultado = MathPow(m_stat.LRCorrelation(), 15)*resultado;
-
-   
-   if(m_stat.Profit() > 0) {
-      if(resultado > 0) {
-         return resultado;
-      } else {
-         return resultado * -1;
-      }
-   } else {
-      if(resultado < 0) {
-         return resultado;
-      } else {
-         return resultado * -1;
-      }
-   }
+   return Resultado;
 }
