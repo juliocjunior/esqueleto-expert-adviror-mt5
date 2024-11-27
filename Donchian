@@ -459,8 +459,8 @@ long GetTicketByMagicNumber(int magicNumber)
 //|                                                                  |
 //+------------------------------------------------------------------+
 double OnTester() {
-  int handle = iCustom(_Symbol, PERIOD_CURRENT, "TradeBuddyTesterMT5");
-  ChartIndicatorAdd(0,0,handle);
+ // int handle = iCustom(_Symbol, PERIOD_CURRENT, "TradeBuddyTesterMT5");
+ // ChartIndicatorAdd(0,0,handle);
 
 // Verifica se o cálculo das estatísticas foi realizado com sucesso
    if(!m_stat.Calculate()) {
