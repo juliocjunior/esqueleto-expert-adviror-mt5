@@ -1,0 +1,87 @@
+//+------------------------------------------------------------------+
+//|                                                    Envelopes AMA |
+//+------------------------------------------------------------------+
+#property copyright "Seu Nome"
+#property link      "Seu Link"
+
+//--- indicator settings
+#property indicator_chart_window
+#property indicator_buffers 3
+#property indicator_plots   2
+#property indicator_type1   DRAW_LINE
+#property indicator_type2   DRAW_LINE
+#property indicator_color1  Blue
+#property indicator_color2  Red
+#property indicator_label1  "Upper Band"
+#property indicator_label2  "Lower Band"
+
+//--- input parameters
+input int      InpPeriodAMA=10;      // AMA period
+input int      InpFastPeriodEMA=2;   // Fast EMA period
+input int      InpSlowPeriodEMA=30;  // Slow EMA period
+input double   InpDeviation=0.1;     // Deviation in percentage
+
+//--- indicator buffers
+double ExtUpBuffer[];
+double ExtDownBuffer[];
+double ExtAMABuffer[];
+
+//--- global variables
+double ExtFastSC, ExtSlowSC;
+
+//+------------------------------------------------------------------+
+//| Custom indicator initialization function                         |
+//+------------------------------------------------------------------+
+void OnInit()
+  {
+   //--- indicator buffers mapping
+   SetIndexBuffer(0, ExtUpBuffer, INDICATOR_DATA);
+   SetIndexBuffer(1, ExtDownBuffer, INDICATOR_DATA);
+   SetIndexBuffer(2, ExtAMABuffer, INDICATOR_CALCULATIONS);
+
+   //--- set styles
+   IndicatorSetString(INDICATOR_SHORTNAME, "Envelopes AMA");
+   IndicatorSetInteger(INDICATOR_DIGITS, _Digits + 1);
+
+   //--- calculate smoothing constants
+   ExtFastSC = 2.0 / (InpFastPeriodEMA + 1.0);
+   ExtSlowSC = 2.0 / (InpSlowPeriodEMA + 1.0);
+  }
+
+//+------------------------------------------------------------------+
+//| Envelopes AMA Calculation                                        |
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total, const int prev_calculated,
+                const datetime &Time[],
+                const double &Open[], const double &High[], const double &Low[],
+                const double &Close[], const long &TickVolume[], const long &Volume[], const int &Spread[])
+  {
+   int i, limit;
+
+   //--- check if we have enough bars
+   if (rates_total <= InpPeriodAMA) return 0;
+
+   //--- determine the start position for calculation
+   limit = prev_calculated > 0 ? prev_calculated - 1 : InpPeriodAMA;
+
+   //--- AMA Calculation
+   for (i = limit; i < rates_total; i++)
+     {
+      double dSignal = fabs(Close[i] - Close[i - InpPeriodAMA]);
+      double dNoise = 0.0;
+      for (int delta = 0; delta < InpPeriodAMA; delta++)
+         dNoise += fabs(Close[i - delta] - Close[i - delta - 1]);
+
+      double ER = (dNoise != 0.0) ? dSignal / dNoise : 0.0;
+      double SSC = pow((ER * (ExtFastSC - ExtSlowSC)) + ExtSlowSC, 2);
+
+      if (i == limit) ExtAMABuffer[i] = Close[i]; // Primeiro valor da AMA
+      else ExtAMABuffer[i] = SSC * (Close[i] - ExtAMABuffer[i - 1]) + ExtAMABuffer[i - 1];
+
+      //--- Calculate Envelopes
+      ExtUpBuffer[i] = (1 + InpDeviation / 100.0) * ExtAMABuffer[i];
+      ExtDownBuffer[i] = (1 - InpDeviation / 100.0) * ExtAMABuffer[i];
+     }
+
+   return rates_total;
+  }
