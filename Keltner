@@ -135,8 +135,29 @@ enum OptionsEnum {
   Option117 = 940, // 940
   Option118 = 960, // 960
   Option119 = 980, // 980
-  Option120 = 1000 // 1000
+  Option120 = 1000, // 1000
+  Option121 = 1100, // 1100
+  Option122 = 1200, // 1200
+  Option123 = 1300, // 1300
+  Option124 = 1400, // 1400
+  Option125 = 1500,  // 1500
+   Option126 = 1600, // 1600
+   Option127 = 1700, // 1700
+   Option128 = 1800, // 1800
+   Option129 = 1900, // 1900
+   Option130 = 2000, // 2000
+   Option131 = 2100, // 2100
+   Option132 = 2200, // 2200
+   Option133 = 2300, // 2300
+   Option134 = 2400, // 2400
+   Option135 = 2500, // 2500
+   Option136 = 2600, // 2600
+   Option137 = 2700, // 2700
+   Option138 = 2800, // 2800
+   Option139 = 2900, // 2900
+   Option140 = 3000  // 3000
 };
+
 
 enum OptionType
 {
@@ -167,18 +188,20 @@ input double Desvio_Keltner1 = 0.1;
 input OptionType Setup_Keltner1 = fecha_dentro_fecha_fora;
 
 
-int mintrades = 400;
-int Magic = 1;
+int mintrades = 500;
+int Candles_Por_Operacao = 1;
 
 
 // VARIÁVEIS
+int Magic = 1;
+int Coldown = 0;
+double Lotes = 1;
+
 int hAbertura = 3;
 int mAbertura = 0;
 int hFechamento = 22;
 int mFechamento = 0;
-int Coldown = 0;
-double Lotes = 1;
-int Candles_Por_Operacao = 1;
+
  
 int Linha_De_Compra_Filtro_Estocastico1 = Espacamento_Filtro_Estocastico1;
 int Linha_De_Venda_Filtro_Estocastico1 = 100-Espacamento_Filtro_Estocastico1;
@@ -463,7 +486,7 @@ long GetTicketByMagicNumber(int magicNumber)
 //+------------------------------------------------------------------+
 double OnTester() {
   //int handle = iCustom(_Symbol, PERIOD_CURRENT, "TradeBuddyTesterMT5");
- // ChartIndicatorAdd(0,0,handle);
+  //ChartIndicatorAdd(0,0,handle);
 
 // Verifica se o cálculo das estatísticas foi realizado com sucesso
    if(!m_stat.Calculate()) {
@@ -476,10 +499,10 @@ double OnTester() {
    double Trades = MathPow(m_stat.Trades(), 1); 
    double modmintrades = MathPow(mintrades, 1);
    
-   if (Trades < modmintrades && Trades > 50) {
+   if (m_stat.Trades() < mintrades && m_stat.Trades() > 50) {
       Resultado = Trades * SharpeRadio;
       
-   } else if (Trades > modmintrades){
+   } else if (m_stat.Trades() > mintrades){
       Resultado = modmintrades * SharpeRadio;
    }
    
